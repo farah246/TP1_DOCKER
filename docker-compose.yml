@@ -1,0 +1,27 @@
+services:
+  db-service:
+    image: redis:${REDIS_TAG}
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
+
+  web:
+    build: .
+    image: counter-app:${APP_VERSION}
+    environment:
+      - REDIS_HOST=db-service
+    ports:
+      - "${WEB_PORTS}:5000"
+    depends_on:
+      - db-service
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  redis-data:
